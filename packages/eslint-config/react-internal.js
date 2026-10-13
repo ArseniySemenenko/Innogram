@@ -16,5 +16,5 @@ export const config = [
       },
     },
   },
-  pluginReactHooks.configs.flat.recommended,
+  pluginReactHooks.configs["recommended-latest"],
 ];
