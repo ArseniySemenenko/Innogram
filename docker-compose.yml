@@ -5,9 +5,9 @@ services:
       dockerfile: apps/client_app/Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://core_microservice:4002
+    env_file:
+      - .env
+      
     depends_on:
       - core_microservice
     restart: unless-stopped
@@ -18,8 +18,8 @@ services:
       dockerfile: apps/auth_microservice/Dockerfile
     ports:
       - "4001:4001"
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - .env
     restart: unless-stopped
 
   core_microservice:
@@ -28,9 +28,8 @@ services:
       dockerfile: apps/core_microservice/Dockerfile
     ports:
       - "4002:4002"
-    environment:
-      - NODE_ENV=production
-      - AUTH_SERVICE_URL=http://auth_microservice:4001
+    env_file:
+      - .env
     depends_on:
       - auth_microservice
     restart: unless-stopped
@@ -39,9 +38,8 @@ services:
     build:
       context: .
       dockerfile: apps/notifications_consumer_microservice/Dockerfile
-    environment:
-      - NODE_ENV=production
-      - CORE_SERVICE_URL=http://core_microservice:4002
+    env_file:
+      - .env
     depends_on:
       - core_microservice
     restart: unless-stopped

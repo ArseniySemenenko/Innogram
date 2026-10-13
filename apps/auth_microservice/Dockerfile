@@ -29,5 +29,5 @@ WORKDIR /app
 COPY --from=builder /app/apps/auth_microservice/dist ./dist
 COPY --from=builder /app/apps/auth_microservice/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
-EXPOSE 4001
+EXPOSE 4002
 CMD ["node", "dist/main.js"]
