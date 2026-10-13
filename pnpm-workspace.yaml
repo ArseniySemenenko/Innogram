@@ -1,5 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
 allowBuilds:
   unrs-resolver: true
+
+overrides:
+  eslint: ^9.39.5
