@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
-FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:24-alpine AS base
+RUN corepack enable
 RUN npm install -g turbo
 WORKDIR /app
 

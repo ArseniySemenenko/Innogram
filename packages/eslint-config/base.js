@@ -1,4 +1,4 @@
-import babelParser from "@babel/eslint-parser";
+import babelParser from "typescript-eslint";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import turboPlugin from "eslint-plugin-turbo";
