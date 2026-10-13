@@ -41,7 +41,7 @@ jobs:
         run: pnpm turbo run lint --filter=...[origin/main]
 
       - name: Type Check affected packages
-        run: pnpm turbo run typecheck --filter=...[origin/main]
+        run: pnpm turbo run check-types --filter=...[origin/main]
 
       - name: Test affected packages
         run: pnpm turbo run test --filter=...[origin/main]
