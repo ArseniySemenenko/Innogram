@@ -15,7 +15,9 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  it('should be defined', () => {
-    expect(appController).toBeDefined();
+  describe('health', () => {
+    it('should return ok status', () => {
+      expect(appController.health()).toEqual({ status: 200 });
+    });
   });
 });
