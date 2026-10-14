@@ -25,14 +25,14 @@ jobs:
         with:
           fetch-depth: 0 # Нужно для определения измененных пакетов
 
-      - name: Setup pnpm
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: "pnpm"
+
+      - name: Setup pnpm
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
