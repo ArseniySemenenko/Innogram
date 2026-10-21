@@ -1,32 +1,30 @@
 # syntax=docker/dockerfile:1.4
+
 FROM node:24-alpine AS base
 RUN corepack enable
-RUN npm install -g turbo
 WORKDIR /app
 
-# --- Pruner ---
-FROM base AS pruner
+FROM base AS deps
 COPY . .
-RUN turbo prune client_app --docker
-
-# --- Installer ---
-FROM base AS installer
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile
 
-# --- Builder ---
-FROM base AS builder
-COPY --from=installer /app/ .
-COPY --from=pruner /app/out/full/ .
-RUN pnpm turbo run build --filter=client_app
+FROM deps AS builder
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm --filter=client_app build
 
-# --- Runner ---
-FROM base AS runner
-ENV NODE_ENV=production
+FROM node:24-alpine AS runner
 WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Копируем standalone целиком — сохраняется структура apps/client_app/
 COPY --from=builder /app/apps/client_app/.next/standalone ./
+
+# static и public кладём относительно server.js
 COPY --from=builder /app/apps/client_app/.next/static ./apps/client_app/.next/static
 COPY --from=builder /app/apps/client_app/public ./apps/client_app/public
+
 EXPOSE 3000
 CMD ["node", "apps/client_app/server.js"]

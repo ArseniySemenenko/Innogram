@@ -2,32 +2,27 @@
 
 FROM node:24-alpine AS base
 RUN corepack enable
-RUN npm install -g turbo
 WORKDIR /app
 
-# --- Pruner ---
-FROM base AS pruner
-COPY . .
-RUN turbo prune auth_microservice --docker
-
-# --- Installer ---
-FROM base AS installer
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN pnpm install --frozen-lockfile
-
-# --- Builder ---
+# --- builder: ставим всё и собираем ---
 FROM base AS builder
-COPY --from=installer /app/ .
-COPY --from=pruner /app/out/full/ .
-RUN pnpm turbo run build --filter=auth_microservice
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter=auth_microservice build
 
-# --- Runner ---
-FROM base AS runner
-ENV NODE_ENV=production
+# --- prod-deps: deploy только прод-зависимости для этого приложения ---
+FROM builder AS prod-deps
+RUN pnpm --filter=auth_microservice --prod deploy /prod/auth
+
+# --- runner: копируем только самодостаточный deploy ---
+FROM node:24-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app/apps/auth_microservice/dist ./dist
-COPY --from=builder /app/apps/auth_microservice/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
-EXPOSE 4002
+ENV NODE_ENV=production
+
+COPY --from=prod-deps /prod/auth ./
+# dist уже внутри /prod/auth, если он был в files/ или .gitignore
+# Если dist не попал — скопируйте отдельно:
+# COPY --from=builder /app/apps/auth_microservice/dist ./dist
+
+EXPOSE 4001
 CMD ["node", "dist/main.js"]
