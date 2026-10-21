@@ -11,7 +11,7 @@
   "dev": "nest start --watch",
   "build": "nest build",
   "start": "node dist/main",
-  "lint": "oxlint --type-aware src/ test/",
+  "lint": "eslint .",
   "check-types": "tsc --noEmit",
   "test": "vitest run",
   "test:watch": "vitest",
