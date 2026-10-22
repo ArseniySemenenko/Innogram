@@ -5,6 +5,8 @@ services:
       dockerfile: apps/client_app/Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      - PORT=3000
     env_file:
       - .env
       
@@ -20,6 +22,8 @@ services:
       - "4001:4001"
     env_file:
       - .env
+    environment:
+      - PORT=4001
     restart: unless-stopped
 
   core_microservice:
@@ -30,6 +34,8 @@ services:
       - "4002:4002"
     env_file:
       - .env
+    environment:
+      - PORT=4002
     depends_on:
       - auth_microservice
     restart: unless-stopped
