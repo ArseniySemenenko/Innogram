@@ -1,18 +1,25 @@
 services:
-  client_app:
-    build:
-      context: .
-      dockerfile: apps/client_app/Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-    env_file:
-      - .env
-      
-    depends_on:
-      - core_microservice
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: innogram-postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-innogram}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-innogram}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - innogram
 
   auth_microservice:
     build:
@@ -24,7 +31,13 @@ services:
       - .env
     environment:
       - PORT=4001
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/innogram_auth
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - innogram
 
   core_microservice:
     build:
@@ -36,9 +49,15 @@ services:
       - .env
     environment:
       - PORT=4002
-    depends_on:
-      - auth_microservice
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/innogram_core
     restart: unless-stopped
+    depends_on:
+      auth_microservice:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    networks:
+      - innogram
 
   notifications_consumer:
     build:
@@ -46,6 +65,37 @@ services:
       dockerfile: apps/notifications_consumer_microservice/Dockerfile
     env_file:
       - .env
-    depends_on:
-      - core_microservice
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/innogram_notifications
     restart: unless-stopped
+    depends_on:
+      core_microservice:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    networks:
+      - innogram
+
+  client_app:
+    build:
+      context: .
+      dockerfile: apps/client_app/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      core_microservice:
+        condition: service_started
+    networks:
+      - innogram
+
+volumes:
+  postgres_data:
+
+networks:
+  innogram:
+    driver: bridge
