@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "type": "module",
     "scripts": {
-        "build": "prisma generate && nest build",
+        "build": "nest build",
         "dev": "prisma generate && nest start --watch",
         "start": "node dist/main",
         "lint": "eslint .",
@@ -40,8 +40,6 @@
         "@types/node": "^24.0.0",
         "@types/supertest": "^7.0.0",
         "@vitest/coverage-v8": "^4.1.2",
-        "oxlint": "^1.58.0",
-        "oxlint-tsgolint": "^7.0.2001",
         "prettier": "^3.4.2",
         "prisma": "^7.10.1",
         "source-map-support": "^0.5.21",
