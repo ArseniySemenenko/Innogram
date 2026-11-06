@@ -5,10 +5,11 @@ import { AppService } from './app.service.js';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get("health")
-  health(){
-    return {
-      status: 200,
-    }
+    @Get("health")
+    async health() {
+        if (await this.appService.healthCheck()) {
+            return { status: 200 };
+        }
+        else return { status: 500 };
   }
 }
