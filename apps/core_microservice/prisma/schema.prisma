@@ -78,3 +78,29 @@ model Asset {
 
   @@map("assets")
 }
+
+model Message{
+    id String @id @default(cuid())
+    content String
+    
+    chatId String
+    chat Chat @relation(fields: [chatId] , references: [id] , onDelete: Cascade)
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("messages")
+    @@index([chatId])
+}
+
+model Chat{
+    id String @id @default(cuid())
+    title String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    messages Message[]
+
+    @@map("chats")
+}
