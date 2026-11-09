@@ -7,9 +7,6 @@ export class AppController {
 
     @Get("health")
     async health() {
-        if (await this.appService.healthCheck()) {
-            return { status: 200 };
-        }
-        else return { status: 500 }
+        return this.appService.healthCheck();
     }
 }
