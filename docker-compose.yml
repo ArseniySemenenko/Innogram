@@ -1,20 +1,58 @@
 services:
-
-  postgres:
+  postgres_auth:
     image: postgres:17-alpine
-    container_name: innogram-postgres
+    container_name: innogram-postgres-auth
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-innogram}
+      POSTGRES_DB: innogram_auth
     ports:
-      - "5432:5432"
+      - "5433:5432" 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_auth_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-innogram}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d innogram_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - innogram
+
+  postgres_core:
+    image: postgres:17-alpine
+    container_name: innogram-postgres-core
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: innogram_core
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_core_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d innogram_core"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - innogram
+
+  postgres_notifications:
+    image: postgres:17-alpine
+    container_name: innogram-postgres-notifications
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: innogram_notifications
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_notifications_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d innogram_notifications"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,9 +67,11 @@ services:
       - "4001:4001"
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres_auth:5432/innogram_auth
     restart: unless-stopped
     depends_on:
-      postgres:
+      postgres_auth:
         condition: service_healthy
     networks:
       - innogram
@@ -44,11 +84,13 @@ services:
       - "4002:4002"
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres_core:5432/innogram_core
     restart: unless-stopped
     depends_on:
       auth_microservice:
         condition: service_started
-      postgres:
+      postgres_core:
         condition: service_healthy
     networks:
       - innogram
@@ -59,11 +101,13 @@ services:
       dockerfile: apps/notifications_consumer_microservice/Dockerfile
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres_notifications:5432/innogram_notifications
     restart: unless-stopped
     depends_on:
       core_microservice:
         condition: service_started
-      postgres:
+      postgres_notifications:
         condition: service_healthy
     networks:
       - innogram
@@ -84,7 +128,9 @@ services:
       - innogram
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_core_data:
+  postgres_notifications_data:
 
 networks:
   innogram:
