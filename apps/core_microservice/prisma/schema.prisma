@@ -43,6 +43,7 @@ model Post {
 
   comments Comment[]
 
+  @@index([authorId])
   @@map("posts")
 }
 

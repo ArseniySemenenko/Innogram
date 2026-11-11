@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User{
-    id Int @id @default(autoincrement())
+    id String @id @default(cuid())
     name String 
     email String @unique
     phone String @unique
@@ -30,11 +30,11 @@ model User{
 model Account{
     id String @id @default(cuid())
     user User @relation(fields: [userId] , references: [id], onDelete: Cascade)
-    userId Int
+    userId String
 
     providerName String
     providerAccountId String
 
-    @@unique([providerAccountId])
+    @@unique([providerAccountId, providerName])
     @@map("accounts")
 }
