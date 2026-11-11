@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { ServiceUnavailableException } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -7,6 +8,7 @@ describe('AppController', () => {
   let controller: AppController;
   let appService: AppService;
 
+  // Мокаем сервис
   const mockAppService = {
     healthCheck: vi.fn(),
   };
@@ -35,21 +37,20 @@ describe('AppController', () => {
   });
 
   describe('health', () => {
-    it('should return status 200 when healthCheck resolves to true', async () => {
+    it('should return status ok when healthCheck resolves to true', async () => {
       mockAppService.healthCheck.mockResolvedValue(true);
 
       const result = await controller.health();
 
-      expect(result).toEqual({ status: 200 });
+      expect(result).toEqual({ status: "ok" });
       expect(appService.healthCheck).toHaveBeenCalledTimes(1);
     });
 
-    it('should return status 500 when healthCheck resolves to false', async () => {
+    it('should throw ServiceUnavailableException when healthCheck resolves to false', async () => {
       mockAppService.healthCheck.mockResolvedValue(false);
 
-      const result = await controller.health();
-
-      expect(result).toEqual({ status: 500 });
+      // Контроллер выбрасывает исключение, а не возвращает объект
+      await expect(controller.health()).rejects.toThrow(ServiceUnavailableException);
       expect(appService.healthCheck).toHaveBeenCalledTimes(1);
     });
 
