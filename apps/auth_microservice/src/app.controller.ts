@@ -1,4 +1,4 @@
-import { Controller, Get} from '@nestjs/common';
+import { Controller, Get, ServiceUnavailableException} from '@nestjs/common';
 import { AppService } from './app.service.js';
 
 @Controller()
@@ -7,9 +7,7 @@ export class AppController {
 
     @Get("health")
     async health() {
-        if (await this.appService.healthCheck()) {
-            return { status: 200 };
-        }
-        else return { status: 500 }
+        if (!await this.appService.healthCheck()) throw new ServiceUnavailableException();
+        return { status: "ok" };
     }
 }
