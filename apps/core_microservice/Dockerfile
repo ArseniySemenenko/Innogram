@@ -19,7 +19,6 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /prod/core ./
 COPY --from=builder /app/apps/core_microservice/dist ./dist
 
-
 EXPOSE 4002
 
 COPY prisma ./prisma
