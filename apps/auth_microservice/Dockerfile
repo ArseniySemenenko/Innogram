@@ -7,6 +7,7 @@ WORKDIR /app
 FROM base AS builder
 COPY . .
 RUN pnpm install --frozen-lockfile
+RUN pnpm --filter=auth_microservice db:generate
 RUN pnpm --filter=auth_microservice build
 
 FROM builder AS prod-deps
