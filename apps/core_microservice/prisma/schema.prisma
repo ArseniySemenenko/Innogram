@@ -26,6 +26,7 @@ model Profile {
 
   posts    Post[]
   comments Comment[]
+  messages Message[]
 
   @@index([userId])
   @@map("profiles")
@@ -85,12 +86,15 @@ model Message{
     
     chatId String
     chat Chat @relation(fields: [chatId] , references: [id] , onDelete: Cascade)
-    
+
+    senderId String
+    sender Profile @relation(fields: [senderId] , references: [id] , onDelete: NoAction)
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@map("messages")
-    @@index([chatId])
+    @@index([chatId, senderId])
 }
 
 model Chat{
