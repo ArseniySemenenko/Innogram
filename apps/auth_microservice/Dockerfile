@@ -20,4 +20,4 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /prod/auth ./
 
 EXPOSE 4001
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

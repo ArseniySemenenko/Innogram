@@ -20,6 +20,4 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /prod/consumer ./
 COPY --from=builder /app/apps/notifications_consumer_microservice/dist ./dist
 
-# No EXPOSE: consumer doesn't listen on a port
-
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
