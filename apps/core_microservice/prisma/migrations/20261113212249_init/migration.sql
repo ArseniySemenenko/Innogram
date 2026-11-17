@@ -11,13 +11,6 @@ CREATE TABLE "profiles" (
 
     CONSTRAINT "profiles_pkey" PRIMARY KEY ("id")
 );
-
-ALTER TABLE "comments"
-  ADD CONSTRAINT "comments_content_not_empty" CHECK (length(trim("content")) > 0);
-
-ALTER TABLE "profiles"
-  ADD CONSTRAINT "profiles_username_format" CHECK ("userName" ~ '^[a-zA-Z0-9_]{3,30}$');
-
 -- CreateTable
 CREATE TABLE "posts" (
     "id" TEXT NOT NULL,
@@ -80,3 +73,9 @@ ALTER TABLE "comments" ADD CONSTRAINT "comments_authorId_fkey" FOREIGN KEY ("aut
 
 -- AddForeignKey
 ALTER TABLE "comments" ADD CONSTRAINT "comments_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "comments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "comments"
+  ADD CONSTRAINT "comments_content_not_empty" CHECK (length(trim("content")) > 0);
+
+ALTER TABLE "profiles"
+  ADD CONSTRAINT "profiles_username_format" CHECK ("userName" ~ '^[a-zA-Z0-9_]{3,30}$');
