@@ -21,4 +21,5 @@ COPY --from=prod-deps /prod/core ./
 COPY --from=builder /app/apps/core_microservice/dist ./dist
 
 EXPOSE 4002
-CMD ["node", "dist/main.js"]
+
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
