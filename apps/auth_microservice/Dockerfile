@@ -21,5 +21,4 @@ COPY --from=prod-deps /prod/auth ./
 
 EXPOSE 4001
 
-COPY prisma ./prisma
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
