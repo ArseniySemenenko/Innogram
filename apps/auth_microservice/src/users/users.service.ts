@@ -42,13 +42,29 @@ export class UsersService {
         return this.prisma.user.findMany({
             take: take,
             skip: skip,
-            orderBy: { createdAt: "desc" }
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true,
+            }
         });
     }
 
     async findOne(id: string) {
         const user = await this.prisma.user.findUnique({
             where: { id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true,
+            }
         });
 
         if (!user) throw new NotFoundException(`User with id ${id} not found`)
@@ -78,6 +94,14 @@ export class UsersService {
                     email: dto.email.toLowerCase().trim(),
                     phone: dto.phone.trim(),
                 },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
             })
         }
     }
