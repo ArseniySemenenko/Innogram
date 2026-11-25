@@ -16,5 +16,5 @@ export class UpdateUserDto{
     @IsString()
     @IsOptional()
     @MinLength(8, { message: "Password has to include more then 7" })
-    password!: string;
+    password?: string;
 }
